@@ -42,11 +42,15 @@ snake_body = []
 velocityX = 0
 velocityY = 0
 Game_over = False
+score = 0
 
 def change_direction(e):
     #print(e)
     #print(e.keysym)
-    global velocityX,velocityY
+    global velocityX,velocityY, Game_over
+
+    if(Game_over):
+        return
 
     if(e.keysym == 'Up' and velocityY != 1):
         velocityX = 0
@@ -63,13 +67,30 @@ def change_direction(e):
 
 
 def move():
-    global snake
+    global snake, food, snake_body, Game_over,score
+
+    if(Game_over):
+        return
+    
+    #kollision mit wamd
+    if(snake.x < 0 or snake.x >= FENSTER_BREITE or snake.y < 0 or snake.y >= FENSTER_BREITE):
+        Game_over = True
+        return
+    
+    #kollision mit sich selbst 
+    for tile in snake_body:
+        if(snake.x == tile.x and snake.y == tile.y):
+            Game_over = True
+            return 
+
+
 
     #Kollision mit essen
     if(snake.x == food.x and snake.y == food.y):
         snake_body.append(Tile(food.x,food.y))
         food.x = random.randint(0,COL-1)* TILE_SIZE
         food.y = random.randint(0,ROW-1)* TILE_SIZE
+        score +=1
 
     #snake_body Bewegen
     for i in range(len(snake_body)-1,-1,-1):
@@ -90,7 +111,7 @@ def move():
 
 
 def draw():
-    global snake
+    global snake,food ,snake_body,Game_over,score
 
     move()
     canvas.delete('all')
@@ -103,6 +124,11 @@ def draw():
 
     for tile in snake_body:
         canvas. create_rectangle(tile.x, tile.y, tile.x + TILE_SIZE, tile.y + TILE_SIZE, fill = "lime green")
+
+    if(Game_over):
+        canvas.create_text(FENSTER_BREITE/2,FENSTER_HOHE/2,font = "Arial 20", text = f"Game Over: {score}", fill = "white")
+    else:
+        canvas.create_text(30,20,font = 'Arial 10', text = f"Score: {score}",fill = 'white')
     
     window.after(100,draw)
 
