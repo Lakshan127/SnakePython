@@ -19,7 +19,7 @@ fenster = tkinter.Tk()
 fenster.title("Snake")
 fenster.resizable(False, False)
 
-leinwand = tkinter.Canvas(fenster, bg='gray', width=FENSTER_BREITE, height=FENSTER_HOEHE, borderwidth=0, highlightthickness=0)
+leinwand = tkinter.Canvas(fenster, bg='green', width=FENSTER_BREITE, height=FENSTER_HOEHE, borderwidth=0, highlightthickness=0)
 leinwand.pack()
 fenster.update()
 
@@ -44,6 +44,7 @@ spiel_vorbei = False
 spiel_gestartet = False
 punktzahl = 0
 
+#Spiel resetten
 def spiel_neu_starten():
     global schlange, essen, schlangen_koerper, bewegung_x, bewegung_y, spiel_vorbei, spiel_gestartet, punktzahl
     schlange = Kachel(5 * KACHEL_GROESSE, 5 * KACHEL_GROESSE)
@@ -129,14 +130,23 @@ def zeichnen():
     bewegen()
     leinwand.delete('all')
 
+    """"
+     # Schachbrettmuster zeichnen
+     for i in range(REIHEN):
+        for j in range(SPALTEN):
+            farbe = "light green" if (i + j) % 2 == 0 else "green"
+            leinwand.create_rectangle(j * KACHEL_GROESSE, i * KACHEL_GROESSE,
+                                      (j + 1) * KACHEL_GROESSE, (i + 1) * KACHEL_GROESSE, fill=farbe)
+    """
+   
     # Essen zeichnen
     leinwand.create_rectangle(essen.x, essen.y, essen.x + KACHEL_GROESSE, essen.y + KACHEL_GROESSE, fill='red')
 
     # Schlange zeichnen
-    leinwand.create_rectangle(schlange.x, schlange.y, schlange.x + KACHEL_GROESSE, schlange.y + KACHEL_GROESSE, fill='lime green')
+    leinwand.create_rectangle(schlange.x, schlange.y, schlange.x + KACHEL_GROESSE, schlange.y + KACHEL_GROESSE, fill='blue')
 
     for kachel in schlangen_koerper:
-        leinwand.create_rectangle(kachel.x, kachel.y, kachel.x + KACHEL_GROESSE, kachel.y + KACHEL_GROESSE, fill='lime green')
+        leinwand.create_rectangle(kachel.x, kachel.y, kachel.x + KACHEL_GROESSE, kachel.y + KACHEL_GROESSE, fill='light blue')
 
     if spiel_vorbei:
         leinwand.create_text(FENSTER_BREITE / 2, FENSTER_HOEHE / 2, font="Arial 20", text=f"Game Over: {punktzahl} (Leertaste für Neustart)", fill="white")
