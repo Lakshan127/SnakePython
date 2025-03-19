@@ -41,11 +41,30 @@ schlangen_koerper = []  # Liste für den Körper der Schlange
 bewegung_x = 0
 bewegung_y = 0
 spiel_vorbei = False
+spiel_gestartet = False
 punktzahl = 0
+
+def spiel_neu_starten():
+    global schlange, essen, schlangen_koerper, bewegung_x, bewegung_y, spiel_vorbei, spiel_gestartet, punktzahl
+    schlange = Kachel(5 * KACHEL_GROESSE, 5 * KACHEL_GROESSE)
+    essen = Kachel(10 * KACHEL_GROESSE, 10 * KACHEL_GROESSE)
+    schlangen_koerper = []
+    bewegung_x = 0
+    bewegung_y = 0
+    spiel_vorbei = False
+    spiel_gestartet = False
+    punktzahl = 0
 
 def richtung_aendern(e):
     """Ändert die Bewegungsrichtung der Schlange basierend auf der gedrückten Pfeiltaste."""
-    global bewegung_x, bewegung_y, spiel_vorbei
+    global bewegung_x, bewegung_y, spiel_vorbei, spiel_gestartet
+
+    if spiel_vorbei and e.keysym == 'space':
+        spiel_neu_starten()
+        return
+
+    if not spiel_gestartet and e.keysym in ['Up', 'Down', 'Left', 'Right']:
+        spiel_gestartet = True
 
     if spiel_vorbei:
         return
@@ -67,7 +86,7 @@ def bewegen():
     """Bewegt die Schlange und überprüft auf Kollisionen."""
     global schlange, essen, schlangen_koerper, spiel_vorbei, punktzahl
 
-    if spiel_vorbei:
+    if spiel_vorbei or not spiel_gestartet:
         return
     
     # Kollision mit der Wand
@@ -119,17 +138,15 @@ def zeichnen():
     for kachel in schlangen_koerper:
         leinwand.create_rectangle(kachel.x, kachel.y, kachel.x + KACHEL_GROESSE, kachel.y + KACHEL_GROESSE, fill='lime green')
 
-    # Punktestand oder Game-Over-Nachricht anzeigen
     if spiel_vorbei:
-        leinwand.create_text(FENSTER_BREITE / 2, FENSTER_HOEHE / 2, font="Arial 20", text=f"Game Over: {punktzahl}", fill="white")
+        leinwand.create_text(FENSTER_BREITE / 2, FENSTER_HOEHE / 2, font="Arial 20", text=f"Game Over: {punktzahl} (Leertaste für Neustart)", fill="white")
+    elif not spiel_gestartet:
+        leinwand.create_text(FENSTER_BREITE / 2, FENSTER_HOEHE / 2, font="Arial 15", text="Drücke ←↑↓→ Starten", fill="white")
     else:
         leinwand.create_text(30, 20, font='Arial 10', text=f"Punkte: {punktzahl}", fill='white')
     
     fenster.after(100, zeichnen)
 
-# Zeichnen starten
 zeichnen()
-
-# Steuerung aktivieren
 fenster.bind("<KeyRelease>", richtung_aendern)
 fenster.mainloop()
