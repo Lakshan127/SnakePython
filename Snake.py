@@ -1,139 +1,135 @@
 import tkinter
 import random
 
-ROW = 25
-COL = 25
-TILE_SIZE = 25
+# Spielfeldgröße
+REIHEN = 25
+SPALTEN = 25
+KACHEL_GROESSE = 25
 
-FENSTER_BREITE = COL * TILE_SIZE
-FENSTER_HOHE = ROW * TILE_SIZE
+FENSTER_BREITE = SPALTEN * KACHEL_GROESSE
+FENSTER_HOEHE = REIHEN * KACHEL_GROESSE
 
-class Tile:
+class Kachel:
     def __init__(self, x, y):
         self.x = x
         self.y = y
 
+# Fenster erstellen
+fenster = tkinter.Tk()
+fenster.title("Snake")
+fenster.resizable(False, False)
 
-# SpielFenster
-window = tkinter.Tk()
-window.title("Snake")
-window.resizable(False,False)
+leinwand = tkinter.Canvas(fenster, bg='gray', width=FENSTER_BREITE, height=FENSTER_HOEHE, borderwidth=0, highlightthickness=0)
+leinwand.pack()
+fenster.update()
 
-canvas = tkinter.Canvas(window, bg='gray', width=FENSTER_BREITE,height=FENSTER_HOHE,borderwidth=0, highlightthickness=0)
-canvas.pack()
-window.update()
+# Fenster zentrieren
+fenster_breite = fenster.winfo_width()
+fenster_hoehe = fenster.winfo_height()
+bildschirm_breite = fenster.winfo_screenwidth()
+bildschirm_hoehe = fenster.winfo_screenheight()
 
-#center the window
-window_width = window.winfo_width()
-window_height = window.winfo_height()
-screen_width = window.winfo_screenwidth()
-screen_height = window.winfo_screenheight()
+fenster_x = int((bildschirm_breite / 2) - (fenster_breite / 2))
+fenster_y = int((bildschirm_hoehe / 2) - (fenster_hoehe / 2))
 
-window_x = int((screen_width/2) - (window_width/2))
-window_y = int((screen_height/2) - (window_height/2))
+fenster.geometry(f"{fenster_breite}x{fenster_hoehe}+{fenster_x}+{fenster_y}")
 
-window.geometry (f"{window_width}x{window_height}+{window_x}+{window_y}")
+# Spiel-Initialisierung
+schlange = Kachel(5 * KACHEL_GROESSE, 5 * KACHEL_GROESSE)  # Kopf der Schlange
+essen = Kachel(10 * KACHEL_GROESSE, 10 * KACHEL_GROESSE)
+schlangen_koerper = []  # Liste für den Körper der Schlange
+bewegung_x = 0
+bewegung_y = 0
+spiel_vorbei = False
+punktzahl = 0
 
+def richtung_aendern(e):
+    """Ändert die Bewegungsrichtung der Schlange basierend auf der gedrückten Pfeiltaste."""
+    global bewegung_x, bewegung_y, spiel_vorbei
 
-#Spiel Initialisirung
-snake = Tile(5*TILE_SIZE,5*TILE_SIZE)#Kopf der Schlange
-food = Tile(10*TILE_SIZE,10*TILE_SIZE)
-snake_body = []
-velocityX = 0
-velocityY = 0
-Game_over = False
-score = 0
-
-def change_direction(e):
-    #print(e)
-    #print(e.keysym)
-    global velocityX,velocityY, Game_over
-
-    if(Game_over):
+    if spiel_vorbei:
         return
 
-    if(e.keysym == 'Up' and velocityY != 1):
-        velocityX = 0
-        velocityY = -1
-    elif(e.keysym == 'Down' and velocityY != -1):
-        velocityX = 0
-        velocityY = 1
-    elif(e.keysym == 'Left' and velocityX != 1):
-        velocityX = -1
-        velocityY = 0
-    elif(e.keysym == 'Right' and velocityX != -1):
-        velocityX = 1
-        velocityY = 0
+    if e.keysym == 'Up' and bewegung_y != 1:
+        bewegung_x = 0
+        bewegung_y = -1
+    elif e.keysym == 'Down' and bewegung_y != -1:
+        bewegung_x = 0
+        bewegung_y = 1
+    elif e.keysym == 'Left' and bewegung_x != 1:
+        bewegung_x = -1
+        bewegung_y = 0
+    elif e.keysym == 'Right' and bewegung_x != -1:
+        bewegung_x = 1
+        bewegung_y = 0
 
+def bewegen():
+    """Bewegt die Schlange und überprüft auf Kollisionen."""
+    global schlange, essen, schlangen_koerper, spiel_vorbei, punktzahl
 
-def move():
-    global snake, food, snake_body, Game_over,score
-
-    if(Game_over):
+    if spiel_vorbei:
         return
     
-    #kollision mit wamd
-    if(snake.x < 0 or snake.x >= FENSTER_BREITE or snake.y < 0 or snake.y >= FENSTER_BREITE):
-        Game_over = True
+    # Kollision mit der Wand
+    if schlange.x < 0 or schlange.x >= FENSTER_BREITE or schlange.y < 0 or schlange.y >= FENSTER_HOEHE:
+        spiel_vorbei = True
         return
     
-    #kollision mit sich selbst 
-    for tile in snake_body:
-        if(snake.x == tile.x and snake.y == tile.y):
-            Game_over = True
+    # Kollision mit sich selbst
+    for kachel in schlangen_koerper:
+        if schlange.x == kachel.x and schlange.y == kachel.y:
+            spiel_vorbei = True
             return 
 
+    # Kollision mit dem Essen
+    if schlange.x == essen.x and schlange.y == essen.y:
+        schlangen_koerper.append(Kachel(essen.x, essen.y))  # Neues Segment hinzufügen
+        essen.x = random.randint(0, SPALTEN - 1) * KACHEL_GROESSE
+        essen.y = random.randint(0, REIHEN - 1) * KACHEL_GROESSE
+        punktzahl += 1
 
-
-    #Kollision mit essen
-    if(snake.x == food.x and snake.y == food.y):
-        snake_body.append(Tile(food.x,food.y))
-        food.x = random.randint(0,COL-1)* TILE_SIZE
-        food.y = random.randint(0,ROW-1)* TILE_SIZE
-        score +=1
-
-    #snake_body Bewegen
-    for i in range(len(snake_body)-1,-1,-1):
-        tile = snake_body[i]
-        if(i == 0):
-            tile.x = snake.x
-            tile.y = snake.y
+    # Schlange bewegen (Körperteile verschieben)
+    for i in range(len(schlangen_koerper) - 1, -1, -1):
+        kachel = schlangen_koerper[i]
+        if i == 0:
+            kachel.x = schlange.x
+            kachel.y = schlange.y
         else:
-            prev_tile = snake_body[i-1]
-            tile.x = prev_tile.x
-            tile.y = prev_tile.y
+            vorherige_kachel = schlangen_koerper[i - 1]
+            kachel.x = vorherige_kachel.x
+            kachel.y = vorherige_kachel.y
 
+    # Kopf der Schlange weiterbewegen
+    schlange.x += bewegung_x * KACHEL_GROESSE
+    schlange.y += bewegung_y * KACHEL_GROESSE
 
+def zeichnen():
+    """Zeichnet das Spielfeld neu nach jeder Bewegung."""
+    global schlange, essen, schlangen_koerper, spiel_vorbei, punktzahl
 
-    
-    snake.x += velocityX * TILE_SIZE
-    snake.y += velocityY * TILE_SIZE
+    bewegen()
+    leinwand.delete('all')
 
+    # Essen zeichnen
+    leinwand.create_rectangle(essen.x, essen.y, essen.x + KACHEL_GROESSE, essen.y + KACHEL_GROESSE, fill='red')
 
-def draw():
-    global snake,food ,snake_body,Game_over,score
+    # Schlange zeichnen
+    leinwand.create_rectangle(schlange.x, schlange.y, schlange.x + KACHEL_GROESSE, schlange.y + KACHEL_GROESSE, fill='lime green')
 
-    move()
-    canvas.delete('all')
+    for kachel in schlangen_koerper:
+        leinwand.create_rectangle(kachel.x, kachel.y, kachel.x + KACHEL_GROESSE, kachel.y + KACHEL_GROESSE, fill='lime green')
 
-    #Essen
-    canvas.create_rectangle(food.x,food.y,food.x+TILE_SIZE,food.y+TILE_SIZE,fill='red')
-
-    #Schlange 
-    canvas.create_rectangle(snake.x,snake.y,snake.x+TILE_SIZE,snake.y+TILE_SIZE,fill='lime green')
-
-    for tile in snake_body:
-        canvas. create_rectangle(tile.x, tile.y, tile.x + TILE_SIZE, tile.y + TILE_SIZE, fill = "lime green")
-
-    if(Game_over):
-        canvas.create_text(FENSTER_BREITE/2,FENSTER_HOHE/2,font = "Arial 20", text = f"Game Over: {score}", fill = "white")
+    # Punktestand oder Game-Over-Nachricht anzeigen
+    if spiel_vorbei:
+        leinwand.create_text(FENSTER_BREITE / 2, FENSTER_HOEHE / 2, font="Arial 20", text=f"Game Over: {punktzahl}", fill="white")
     else:
-        canvas.create_text(30,20,font = 'Arial 10', text = f"Score: {score}",fill = 'white')
+        leinwand.create_text(30, 20, font='Arial 10', text=f"Punkte: {punktzahl}", fill='white')
     
-    window.after(100,draw)
+    fenster.after(100, zeichnen)
 
-draw()
+# Zeichnen starten
+zeichnen()
 
-
-window.bind("<KeyRelease>",change_direction)
-window.mainloop() 
+# Steuerung aktivieren
+fenster.bind("<KeyRelease>", richtung_aendern)
+fenster.mainloop()
