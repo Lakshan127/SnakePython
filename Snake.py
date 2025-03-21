@@ -19,7 +19,7 @@ fenster = tkinter.Tk()
 fenster.title("Snake")
 fenster.resizable(False, False)
 
-leinwand = tkinter.Canvas(fenster, bg='green', width=FENSTER_BREITE, height=FENSTER_HOEHE, borderwidth=0, highlightthickness=0)
+leinwand = tkinter.Canvas(fenster, bg='gray', width=FENSTER_BREITE, height=FENSTER_HOEHE, borderwidth=0, highlightthickness=0)
 leinwand.pack()
 fenster.update()
 
