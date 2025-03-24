@@ -31,6 +31,5 @@ Falls du Git installiert hast, kannst du das Projekt mit folgendem Befehl klonen
 	•	Schwierigkeitsstufen hinzufügen
 	•	Mehr Farben und Animationen
 	•	Soundeffekte
-
  ### 🎮 Viel Spaß beim Spielen! 🚀🐍
 
