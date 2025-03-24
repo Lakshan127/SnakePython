@@ -18,11 +18,12 @@ Inspiriert von [diesem YouTube-Video](https://youtu.be/FtqWCo1_I4g?si=rPRYOpi_vF
 ### 1️⃣ Python installieren  
 Falls Python noch nicht installiert ist, lade die neueste Version von [python.org](https://www.python.org/downloads/) herunter und installiere sie.  
 
-### 2️⃣ Repository klonen  
+### 2️⃣ Repository klonen und Spiel Starten
 Falls du Git installiert hast, kannst du das Projekt mit folgendem Befehl klonen:  
   ```bash
-    git clone https://github.com/Lakshan/SnakePython.git
+    git clone https://github.com/Lakshan127/SnakePython.git
     cd SnakePython
+    python3 Snake.py
   ```
 
 ### 🔧 Mögliche Erweiterungen
